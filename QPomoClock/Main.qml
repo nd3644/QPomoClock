@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Qt.labs.platform
-import QtQuick.Controls.Universal
+import QtQuick.Controls.Material
 
 Window {
     width: 320
@@ -17,6 +17,7 @@ Window {
 
     property int timeRemaining: 1500 // 25 mins in seconds
     property bool timerRunning: false
+    property string currentState: "focus";
 
     Timer {
         id: timer
@@ -33,54 +34,50 @@ Window {
         }
     }
 
-    Text {
-        id: timerDisplay
+    Rectangle {
+        id: centerRect
+        width: timerDisplay.width + 10
+        height: timerDisplay.height + 10
+        color: "black"
+        opacity: 0.6
+        radius: 10
         anchors.centerIn: parent
-        font.pixelSize: 40
-        text: formatTime(timeRemaining)
+
+        Text {
+            id: timerDisplay
+            color: "white"
+            anchors.centerIn: parent
+            font.pixelSize: 40
+            text: formatTime(timeRemaining)
+        }
     }
 
     RowLayout {
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: timerDisplay.top
-        anchors.bottomMargin: 40
-        spacing: 10
+        anchors.bottom: centerRect.top
+        anchors.bottomMargin: 30
+        spacing: 5
 
-        Rectangle {
-            id: buttonStyle
-            color: "lightblue" // Background color of the button
-            radius: 10 // Adjust this value to control the roundness
-
-            MouseArea {
-                anchors.fill: parent
-                onClicked: console.log("Button clicked")
-            }
-        }
-
-
-        RoundButton {
+        StateButton {
             id: focusButton
-            width: 100
-            height: 25
             text: "Focus"
-            enabled: false
+            enabled: true
             radius: 5
             anchors {
-                topMargin: 20
+                topMargin: 40
             }
             onClicked: {
+                Material.background = "black"
                 shortBreakButton.enabled = longBreakButton.enabled = true;
-                enabled = false;
+                currentState = "focus";
 
                 timeRemaining = 60 * 25;
                 stopTimer();
             }
         }
 
-        RoundButton {
+        StateButton {
             id: shortBreakButton
-            width: 100
-            height: 25
             text: "Short break"
             radius: 5
             anchors {
@@ -95,10 +92,8 @@ Window {
             }
         }
 
-        RoundButton {
+        StateButton {
             id: longBreakButton
-            width: 200
-            height: 25
             text: "Long break"
             radius: 5
             anchors {
@@ -113,30 +108,31 @@ Window {
         }
     }
 
-    RoundButton {
-        radius: 25
+    CircleButton {
+        radius: 30
         id: startButton
-        width: 50
-        height: 50
+        width: 60
+        height: 60
         text: timerRunning ? "\u23F8" : "\u25B6"
-        font.pixelSize: 16
+        font.pixelSize: timerRunning ? 24 : 16 // Pause symbol is a bit small
         anchors {
-            top: timerDisplay.bottom
+            top: centerRect.bottom
             topMargin: 20
             horizontalCenter: parent.horizontalCenter
         }
         onClicked: {
             toggleTimer();
         }
+
     }
 
-    RoundButton {
+    CircleButton {
         id: restartButton
-        radius: 20
-        width: 40
-        height: 40
+        radius: 25
+        width: 50
+        height: 50
         text: "\u21BA"
-        font.pixelSize: 14
+        font.pixelSize: 16
         enabled: false
         anchors {
             right: startButton.left
@@ -145,20 +141,20 @@ Window {
         }
         onEnabledChanged: {
             var fadeAnimation = Qt.createQmlObject('import QtQuick 2.15; NumberAnimation { target: skipButton; property: "opacity"; duration: 500 }', skipButton);
-            fadeAnimation.from = enabled ? 0.1 : 1.0; // Start from half opacity when enabling, full when disabling
-            fadeAnimation.to = enabled ? 1.0 : 0.1; // End at full opacity when enabling, half when disabling
+            fadeAnimation.from = enabled ? 0.0 : 1.0; // Start from half opacity when enabling, full when disabling
+            fadeAnimation.to = enabled ? 1.0 : 0.0; // End at full opacity when enabling, half when disabling
             fadeAnimation.start();
         }
     }
 
-    RoundButton {
+    CircleButton {
         id: skipButton
-        radius: 20
-        width: 40
-        height: 40
+        radius: 25
+        width: 50
+        height: 50
         text: "\u23E9"
         enabled: false
-        font.pixelSize: 14
+        font.pixelSize: 16
         anchors {
             left: startButton.right
             leftMargin: 20
