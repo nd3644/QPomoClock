@@ -9,10 +9,17 @@ Window {
     height: 240
     visible: true
     title: qsTr("QPomoClock")
+    property string highlighted_color: "grey"
 
     Rectangle {
         anchors.fill: parent
-        color: !focusButton.enabled ? "darkred" : (!shortBreakButton.enabled ? "teal" : "purple")
+        color: currentState == "focus" ? "dark red" : (currentState == "short break" ? "teal" : "midnight blue")
+
+        Behavior on color {
+            ColorAnimation {
+                duration: 250 // Adjust the duration as needed
+            }
+        }
     }
 
     property int timeRemaining: 1500 // 25 mins in seconds
@@ -39,7 +46,7 @@ Window {
         width: timerDisplay.width + 10
         height: timerDisplay.height + 10
         color: "black"
-        opacity: 0.6
+        opacity: 0.6666
         radius: 10
         anchors.centerIn: parent
 
@@ -67,13 +74,14 @@ Window {
                 topMargin: 40
             }
             onClicked: {
-                Material.background = "black"
-                shortBreakButton.enabled = longBreakButton.enabled = true;
                 currentState = "focus";
 
                 timeRemaining = 60 * 25;
                 stopTimer();
             }
+
+            Material.background: (currentState == "focus") ? highlighted_color : "black"
+            opacity: 1.0
         }
 
         StateButton {
@@ -84,12 +92,12 @@ Window {
                 topMargin: 20
             }
             onClicked: {
-                focusButton.enabled = longBreakButton.enabled = true;
-                enabled = false;
-
                 timeRemaining = 60 * 5;
                 stopTimer();
+                currentState = "short break"
             }
+
+            Material.background: (currentState == "short break") ? highlighted_color : "black"
         }
 
         StateButton {
@@ -100,11 +108,11 @@ Window {
                 topMargin: 20
             }
             onClicked: {
-                focusButton.enabled = shortBreakButton.enabled = true;
-                enabled = false;
                 timeRemaining = 60 * 15;
                 stopTimer();
+                currentState = "long break"
             }
+            Material.background: (currentState == "long break") ? highlighted_color : "black"
         }
     }
 
@@ -139,12 +147,6 @@ Window {
             rightMargin: 20
             verticalCenter: startButton.verticalCenter
         }
-        onEnabledChanged: {
-            var fadeAnimation = Qt.createQmlObject('import QtQuick 2.15; NumberAnimation { target: skipButton; property: "opacity"; duration: 500 }', skipButton);
-            fadeAnimation.from = enabled ? 0.0 : 1.0; // Start from half opacity when enabling, full when disabling
-            fadeAnimation.to = enabled ? 1.0 : 0.0; // End at full opacity when enabling, half when disabling
-            fadeAnimation.start();
-        }
     }
 
     CircleButton {
@@ -159,12 +161,6 @@ Window {
             left: startButton.right
             leftMargin: 20
             verticalCenter: startButton.verticalCenter
-        }
-        onEnabledChanged: {
-            var fadeAnimation = Qt.createQmlObject('import QtQuick 2.15; NumberAnimation { target: skipButton; property: "opacity"; duration: 500 }', skipButton);
-            fadeAnimation.from = enabled ? 0.1 : 1.0; // Start from half opacity when enabling, full when disabling
-            fadeAnimation.to = enabled ? 1.0 : 0.1; // End at full opacity when enabling, half when disabling
-            fadeAnimation.start();
         }
     }
 

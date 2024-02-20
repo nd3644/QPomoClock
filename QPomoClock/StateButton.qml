@@ -3,8 +3,7 @@ import QtQuick.Controls.Material
 
 
 RoundButton {
-    background.opacity: 0.5
-    Material.background: "black"
+    background.opacity: 0.6666
     Material.foreground: "white"
     implicitHeight: 40
     implicitWidth: 100
