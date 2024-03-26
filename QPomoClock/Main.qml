@@ -3,6 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import Qt.labs.platform
 import QtQuick.Controls.Material
+import QtMultimedia
 
 Window {
     width: 320
@@ -10,6 +11,12 @@ Window {
     visible: true
     title: qsTr("QPomoClock")
     property string highlighted_color: "grey"
+
+    SoundEffect {
+        id: notificationSound
+        source: "bell2.wav"
+        loops: 6
+    }
 
     Rectangle {
         anchors.fill: parent
@@ -22,11 +29,11 @@ Window {
         }
     }
 
-    property int focus_time: 1500
+    property int focus_time: 3  // 25 mins in seconds
     property int short_break_time: 300
     property int long_break_time: 900
 
-    property int timeRemaining: 1500 // 25 mins in seconds
+    property int timeRemaining: focus_time
     property int sessionCount: 0;
     property bool timerRunning: false
     property string currentState: "focus";
@@ -42,6 +49,7 @@ Window {
             }
             else {
                 stopTimer();
+                notificationSound.play();
             }
         }
     }
@@ -175,6 +183,8 @@ Window {
             nextPhase();
         }
     }
+
+
 
     function nextPhase() {
         stopTimer();
