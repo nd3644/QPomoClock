@@ -22,7 +22,12 @@ Window {
         }
     }
 
+    property int focus_time: 1500
+    property int short_break_time: 300
+    property int long_break_time: 900
+
     property int timeRemaining: 1500 // 25 mins in seconds
+    property int sessionCount: 0;
     property bool timerRunning: false
     property string currentState: "focus";
 
@@ -141,11 +146,15 @@ Window {
         height: 50
         text: "\u21BA"
         font.pixelSize: 16
-        enabled: false
+        enabled: timerRunning
         anchors {
             right: startButton.left
             rightMargin: 20
             verticalCenter: startButton.verticalCenter
+        }
+        onClicked: {
+            stopTimer();
+            restartRemainingTime();
         }
     }
 
@@ -155,23 +164,41 @@ Window {
         width: 50
         height: 50
         text: "\u23E9"
-        enabled: false
+        enabled: true
         font.pixelSize: 16
         anchors {
             left: startButton.right
             leftMargin: 20
             verticalCenter: startButton.verticalCenter
         }
+        onClicked: {
+            nextPhase();
+        }
+    }
+
+    function nextPhase() {
+        stopTimer();
+        if(currentState == "focus") {
+            currentState = "short break";
+            timeRemaining = short_break_time;
+            sessionCount++;
+        }
+        else if(currentState == "short break") {
+            currentState = "long break";
+            timeRemaining = long_break_time;
+        }
+        else if(currentState == "long break") {
+            currentState = "focus";
+            timeRemaining = focus_time;
+        }
     }
 
     function startTimer() {
         timerRunning = true;
-        skipButton.enabled = true;
     }
 
     function stopTimer() {
         timerRunning = false;
-        skipButton.enabled = false;
     }
 
     function toggleTimer() {
@@ -181,6 +208,15 @@ Window {
         else {
             startTimer();
         }
+    }
+
+    function restartRemainingTime() {
+        if(currentState == "focus")
+            timeRemaining = focus_time;
+        else if(currentState == "short break")
+            timeRemaining = short_break_time;
+        else if(currentState == "long break")
+            timeRemaining = long_break_time;
     }
 
     function formatTime(seconds) {
