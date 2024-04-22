@@ -29,7 +29,7 @@ Window {
         }
     }
 
-    property int focus_time: 3  // 25 mins in seconds
+    property int focus_time: 1500  // 25 mins in seconds
     property int short_break_time: 300
     property int long_break_time: 900
 
@@ -50,6 +50,7 @@ Window {
             else {
                 stopTimer();
                 notificationSound.play();
+                nextPhase();
             }
         }
     }
